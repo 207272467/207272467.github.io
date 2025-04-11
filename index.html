@@ -1,27 +1,41 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>时间与新闻</title>
+    <title>古风时钟</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preload" as="image" href="https://img.xjh.me/random_img.php?type=bg&ctype=nature&return=302" crossorigin="anonymous">
 </head>
 <body>
     <div class="container">
         <div class="time-container">
-            <h1 id="time">00:00:00</h1>
-            <p id="date">2024年1月1日</p>
+            <div id="time" class="time"></div>
+            <div id="date" class="date"></div>
         </div>
-        <div class="news-container">
-            <div class="news-header">
-                <h2>今日热点</h2>
-                <button id="refresh-btn" class="refresh-btn">刷新新闻</button>
-            </div>
-            <div id="news-list">
-                <div class="loading">加载中...</div>
+        <div class="poem-container">
+            <h2 class="poem-title"></h2>
+            <p class="poem-author"></p>
+            <p class="poem-content"></p>
+            <div class="button-group">
+                <button class="read-btn" onclick="readPoem()">
+                    <span class="read-icon">🔊</span>
+                    <span class="read-text">朗读诗歌</span>
+                </button>
+                <button class="refresh-btn" onclick="showRandomPoem()">
+                    <span class="refresh-icon">🔄</span>
+                    <span class="refresh-text">换一首诗</span>
+                </button>
+                <div class="auto-read-toggle">
+                    <label class="toggle-label">
+                        <input type="checkbox" id="auto-read-toggle" checked>
+                        <span class="toggle-text">自动朗读</span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>
+    <script src="tang-poems.js"></script>
     <script src="script.js"></script>
 </body>
 </html> 

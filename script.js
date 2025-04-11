@@ -1,75 +1,189 @@
 // 更新时间的函数
 function updateTime() {
     const now = new Date();
-    const timeElement = document.getElementById('time');
-    const dateElement = document.getElementById('date');
     
-    // 格式化时间
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+    // 更新时间
+    const timeElement = document.querySelector('.time');
+    const newTime = now.toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    });
     
-    // 格式化日期
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const day = now.getDate();
-    dateElement.textContent = `${year}年${month}月${day}日`;
-}
-
-// 获取新闻数据
-async function getNews() {
-    const newsListElement = document.getElementById('news-list');
-    const refreshBtn = document.getElementById('refresh-btn');
+    // 只在时间真正改变时更新显示
+    if (timeElement.textContent !== newTime) {
+        timeElement.textContent = newTime;
+    }
     
-    // 显示加载状态
-    newsListElement.innerHTML = '<div class="loading">加载中...</div>';
-    refreshBtn.disabled = true;
-    refreshBtn.textContent = '刷新中...';
+    // 更新日期
+    const dateElement = document.querySelector('.date');
+    const newDate = now.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long'
+    });
     
-    try {
-        // 使用支持跨域的新闻 API
-        const response = await fetch('https://api.apiopen.top/api/getWangYiNews');
-        const data = await response.json();
-        
-        if (data.code === 200 && data.result && data.result.list && data.result.list.length > 0) {
-            // 清空加载提示
-            newsListElement.innerHTML = '';
-            
-            // 随机选择5条新闻
-            const shuffled = [...data.result.list].sort(() => 0.5 - Math.random());
-            const selectedNews = shuffled.slice(0, 5);
-            
-            // 显示新闻列表
-            selectedNews.forEach(article => {
-                const newsItem = document.createElement('div');
-                newsItem.className = 'news-item';
-                newsItem.innerHTML = `
-                    <a href="${article.url}" target="_blank" class="news-title">${article.title}</a>
-                    <div class="news-source">${article.source}</div>
-                `;
-                newsListElement.appendChild(newsItem);
-            });
-        } else {
-            newsListElement.innerHTML = '<div class="loading">暂无新闻数据</div>';
-        }
-    } catch (error) {
-        console.error('获取新闻失败:', error);
-        newsListElement.innerHTML = '<div class="loading">获取新闻失败，请稍后重试</div>';
-    } finally {
-        // 恢复刷新按钮状态
-        refreshBtn.disabled = false;
-        refreshBtn.textContent = '刷新新闻';
+    // 只在日期真正改变时更新显示
+    if (dateElement.textContent !== newDate) {
+        dateElement.textContent = newDate;
     }
 }
 
-// 初始化
+// 初始更新
 updateTime();
+
+// 每秒更新一次
 setInterval(updateTime, 1000);
-getNews();
 
-// 添加刷新按钮点击事件
-document.getElementById('refresh-btn').addEventListener('click', getNews);
+// 记录已显示的诗歌索引
+let displayedPoemIndices = [];
 
-// 每5分钟更新一次新闻
-setInterval(getNews, 5 * 60 * 1000); 
+// 随机显示一首诗
+function showRandomPoem() {
+    // 如果所有诗歌都已显示过，重置记录
+    if (displayedPoemIndices.length >= tangPoems.length) {
+        displayedPoemIndices = [];
+    }
+    
+    // 获取一个未显示过的随机索引
+    let randomIndex;
+    do {
+        randomIndex = Math.floor(Math.random() * tangPoems.length);
+    } while (displayedPoemIndices.includes(randomIndex));
+    
+    // 记录已显示的索引
+    displayedPoemIndices.push(randomIndex);
+    
+    const poem = tangPoems[randomIndex];
+    
+    // 添加淡入淡出效果
+    const titleElement = document.querySelector('.poem-title');
+    const authorElement = document.querySelector('.poem-author');
+    const contentElement = document.querySelector('.poem-content');
+    
+    titleElement.style.opacity = '0';
+    authorElement.style.opacity = '0';
+    contentElement.style.opacity = '0';
+    
+    setTimeout(() => {
+        titleElement.textContent = poem.title;
+        authorElement.textContent = `—— ${poem.author}`;
+        contentElement.textContent = poem.content;
+        
+        titleElement.style.opacity = '1';
+        authorElement.style.opacity = '1';
+        contentElement.style.opacity = '1';
+        
+        // 检查自动朗读开关状态
+        const autoReadToggle = document.getElementById('auto-read-toggle');
+        if (autoReadToggle.checked) {
+            readPoem();
+        }
+    }, 300);
+}
+
+// 页面加载时显示随机诗歌
+showRandomPoem();
+
+// 朗读诗歌
+function readPoem() {
+    const title = document.querySelector('.poem-title').textContent;
+    const author = document.querySelector('.poem-author').textContent;
+    const content = document.querySelector('.poem-content').textContent;
+    
+    // 创建语音合成实例
+    const speech = new SpeechSynthesisUtterance();
+    
+    // 设置语音参数
+    speech.lang = 'zh-CN';
+    speech.rate = 0.8; // 语速稍慢
+    speech.pitch = 1; // 音调
+    speech.volume = 1; // 音量
+    
+    // 组合要朗读的文本
+    const textToRead = `${title}，${author}。${content}`;
+    speech.text = textToRead;
+    
+    // 开始朗读
+    window.speechSynthesis.speak(speech);
+    
+    // 更新按钮状态
+    const readBtn = document.querySelector('.read-btn');
+    readBtn.disabled = true;
+    readBtn.style.opacity = '0.5';
+    
+    // 朗读结束后恢复按钮状态
+    speech.onend = () => {
+        readBtn.disabled = false;
+        readBtn.style.opacity = '1';
+    };
+}
+
+// 添加鼠标悬停效果
+document.addEventListener('DOMContentLoaded', () => {
+    const containers = document.querySelectorAll('.time-container, .poem-container');
+    
+    containers.forEach(container => {
+        container.addEventListener('mousemove', (e) => {
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            container.style.setProperty('--mouse-x', `${x}px`);
+            container.style.setProperty('--mouse-y', `${y}px`);
+        });
+    });
+    
+    // 初始化自动朗读开关状态
+    const autoReadToggle = document.getElementById('auto-read-toggle');
+    autoReadToggle.checked = true;
+});
+
+// 自定义鼠标效果
+document.addEventListener('DOMContentLoaded', () => {
+    // 创建鼠标元素
+    const cursor = document.createElement('div');
+    cursor.classList.add('cursor');
+    document.body.appendChild(cursor);
+    
+    const cursorDot = document.createElement('div');
+    cursorDot.classList.add('cursor-dot');
+    document.body.appendChild(cursorDot);
+    
+    // 更新鼠标位置
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = `${e.clientX}px`;
+        cursor.style.top = `${e.clientY}px`;
+        
+        cursorDot.style.left = `${e.clientX}px`;
+        cursorDot.style.top = `${e.clientY}px`;
+    });
+    
+    // 鼠标悬停效果
+    const hoverElements = document.querySelectorAll('button, a, .time-container, .poem-container');
+    
+    hoverElements.forEach(element => {
+        element.addEventListener('mouseenter', () => {
+            cursor.classList.add('hover');
+            cursorDot.classList.add('hover');
+        });
+        
+        element.addEventListener('mouseleave', () => {
+            cursor.classList.remove('hover');
+            cursorDot.classList.remove('hover');
+        });
+    });
+    
+    // 鼠标点击效果
+    document.addEventListener('mousedown', () => {
+        cursor.classList.add('clicking');
+        cursorDot.classList.add('clicking');
+    });
+    
+    document.addEventListener('mouseup', () => {
+        cursor.classList.remove('clicking');
+        cursorDot.classList.remove('clicking');
+    });
+}); 
