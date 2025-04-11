@@ -58,9 +58,9 @@ function readPoem() {
 
 // 搜索诗歌
 function searchPoems() {
-    const searchInput = document.getElementById('search-input');
+    const searchInput = document.querySelector('#search-input');
     const searchTerm = searchInput.value.toLowerCase();
-    const resultsContainer = document.getElementById('search-results');
+    const resultsContainer = document.querySelector('#search-results');
     
     if (searchTerm.length < 1) {
         resultsContainer.innerHTML = '';
@@ -78,7 +78,7 @@ function searchPoems() {
 
 // 显示搜索结果
 function displaySearchResults(results) {
-    const resultsContainer = document.getElementById('search-results');
+    const resultsContainer = document.querySelector('#search-results');
     resultsContainer.innerHTML = '';
     
     if (results.length === 0) {
@@ -120,8 +120,8 @@ function displaySelectedPoem(poem) {
     }, 500);
     
     // 隐藏搜索结果
-    document.getElementById('search-results').innerHTML = '';
-    document.getElementById('search-input').value = '';
+    document.querySelector('#search-results').innerHTML = '';
+    document.querySelector('#search-input').value = '';
 }
 
 // 初始化
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateTime, 1000);
     
     // 添加事件监听器
-    document.getElementById('read-btn').addEventListener('click', readPoem);
-    document.getElementById('refresh-btn').addEventListener('click', showRandomPoem);
-    document.getElementById('search-input').addEventListener('input', searchPoems);
+    document.querySelector('#read-btn').addEventListener('click', readPoem);
+    document.querySelector('#refresh-btn').addEventListener('click', showRandomPoem);
+    document.querySelector('#search-input').addEventListener('input', searchPoems);
 }); 

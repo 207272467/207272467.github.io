@@ -24,20 +24,14 @@
             <p class="poem-author"></p>
             <p class="poem-content"></p>
             <div class="button-group">
-                <button class="read-btn" onclick="readPoem()">
+                <button id="read-btn" class="read-btn" onclick="readPoem()">
                     <span class="read-icon">🔊</span>
                     <span class="read-text">朗读诗歌</span>
                 </button>
-                <button class="refresh-btn" onclick="showRandomPoem()">
+                <button id="refresh-btn" class="refresh-btn" onclick="showRandomPoem()">
                     <span class="refresh-icon">🔄</span>
                     <span class="refresh-text">换一首诗</span>
                 </button>
-                <div class="auto-read-toggle">
-                    <label class="toggle-label">
-                        <input type="checkbox" id="auto-read-toggle" checked>
-                        <span class="toggle-text">自动朗读</span>
-                    </label>
-                </div>
             </div>
         </div>
     </div>

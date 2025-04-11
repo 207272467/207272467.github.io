@@ -423,68 +423,9 @@ body::after {
     animation: spin 3s linear infinite;
 }
 
-/* 自动朗读开关样式 */
+/* 移除自动朗读相关样式 */
 .auto-read-toggle {
-    display: flex;
-    align-items: center;
-    margin-top: 1rem;
-}
-
-.toggle-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-}
-
-.toggle-label input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-}
-
-.toggle-text {
-    color: #fff;
-    font-size: 1rem;
-    margin-left: 0.5rem;
-}
-
-.toggle-label input:checked + .toggle-text::before {
-    content: '✓ ';
-    color: #4CAF50;
-}
-
-.toggle-label input:not(:checked) + .toggle-text::before {
-    content: '✗ ';
-    color: #f44336;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@media (max-width: 768px) {
-    .button-group {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .read-btn, .refresh-btn {
-        padding: 0.8rem 1.5rem;
-        font-size: 1rem;
-        width: 80%;
-    }
-    
-    .read-icon, .refresh-icon {
-        font-size: 1.2rem;
-    }
-    
-    .auto-read-toggle {
-        margin-top: 1rem;
-    }
+    display: none;
 }
 
 /* 自定义鼠标效果 */
