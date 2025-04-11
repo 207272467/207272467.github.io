@@ -17,36 +17,84 @@ function updateTime() {
     dateElement.textContent = `${year}年${month}月${day}日`;
 }
 
+// 静态新闻数据
+const staticNews = [
+    {
+        title: "中国成功发射神舟十六号载人飞船",
+        url: "https://news.sina.com.cn/china/",
+        source: "新华社"
+    },
+    {
+        title: "2023年全国两会即将召开",
+        url: "https://news.sina.com.cn/china/",
+        source: "人民日报"
+    },
+    {
+        title: "中国科技创新取得重大突破",
+        url: "https://news.sina.com.cn/china/",
+        source: "科技日报"
+    },
+    {
+        title: "中国经济发展稳中向好",
+        url: "https://news.sina.com.cn/china/",
+        source: "经济日报"
+    },
+    {
+        title: "中国传统文化焕发新活力",
+        url: "https://news.sina.com.cn/china/",
+        source: "文化报"
+    }
+];
+
 // 获取新闻数据
 async function getNews() {
     const newsListElement = document.getElementById('news-list');
     
     try {
-        // 使用聚合数据的中国新闻 API
-        const response = await fetch('https://v.juhe.cn/toutiao/index?type=top&key=ecf73331e4de4e9b9ee3586ca89171fd');
+        // 尝试从 API 获取新闻
+        const response = await fetch('https://api.apiopen.top/api/getWangYiNews');
         const data = await response.json();
         
-        if (data.error_code === 0 && data.result && data.result.data && data.result.data.length > 0) {
+        if (data.code === 200 && data.result && data.result.list && data.result.list.length > 0) {
             // 清空加载提示
             newsListElement.innerHTML = '';
             
             // 显示新闻列表
-            data.result.data.slice(0, 5).forEach(article => {
+            data.result.list.slice(0, 5).forEach(article => {
                 const newsItem = document.createElement('div');
                 newsItem.className = 'news-item';
                 newsItem.innerHTML = `
                     <a href="${article.url}" target="_blank" class="news-title">${article.title}</a>
-                    <div class="news-source">${article.author_name}</div>
+                    <div class="news-source">${article.source}</div>
                 `;
                 newsListElement.appendChild(newsItem);
             });
         } else {
-            newsListElement.innerHTML = '<div class="loading">暂无新闻数据</div>';
+            // 如果 API 返回空数据，使用静态新闻
+            displayStaticNews(newsListElement);
         }
     } catch (error) {
         console.error('获取新闻失败:', error);
-        newsListElement.innerHTML = '<div class="loading">获取新闻失败，请稍后重试</div>';
+        // 如果 API 请求失败，使用静态新闻
+        displayStaticNews(newsListElement);
     }
+}
+
+// 显示静态新闻
+function displayStaticNews(newsListElement) {
+    // 清空加载提示
+    newsListElement.innerHTML = '';
+    
+    // 显示静态新闻列表
+    staticNews.forEach(article => {
+        const newsItem = document.createElement('div');
+        newsItem.className = 'news-item';
+        newsItem.innerHTML = `
+            <a href="${article.url}" target="_blank" class="news-title">${article.title}</a>
+            <div class="news-source">${article.source}</div>
+        `;
+        newsListElement.appendChild(newsItem);
+    });
 }
 
 // 初始化
