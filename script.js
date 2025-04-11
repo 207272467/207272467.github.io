@@ -22,21 +22,21 @@ async function getNews() {
     const newsListElement = document.getElementById('news-list');
     
     try {
-        // 使用 Gnews API 获取新闻（支持跨域）
-        const response = await fetch('https://gnews.io/api/v4/top-headlines?country=cn&lang=zh&max=5&apikey=ecf73331e4de4e9b9ee3586ca89171fd');
+        // 使用聚合数据的中国新闻 API
+        const response = await fetch('https://v.juhe.cn/toutiao/index?type=top&key=ecf73331e4de4e9b9ee3586ca89171fd');
         const data = await response.json();
         
-        if (data.articles && data.articles.length > 0) {
+        if (data.error_code === 0 && data.result && data.result.data && data.result.data.length > 0) {
             // 清空加载提示
             newsListElement.innerHTML = '';
             
             // 显示新闻列表
-            data.articles.forEach(article => {
+            data.result.data.slice(0, 5).forEach(article => {
                 const newsItem = document.createElement('div');
                 newsItem.className = 'news-item';
                 newsItem.innerHTML = `
                     <a href="${article.url}" target="_blank" class="news-title">${article.title}</a>
-                    <div class="news-source">${article.source.name}</div>
+                    <div class="news-source">${article.author_name}</div>
                 `;
                 newsListElement.appendChild(newsItem);
             });
