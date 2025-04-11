@@ -73,10 +73,30 @@ body {
     text-align: left;
 }
 
-.news-container h2 {
-    text-align: center;
+.news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1.5rem;
+}
+
+.news-header h2 {
     font-size: 1.8rem;
+}
+
+.refresh-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.refresh-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .news-item {

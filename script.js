@@ -20,23 +20,33 @@ function updateTime() {
 // 获取新闻数据
 async function getNews() {
     const newsListElement = document.getElementById('news-list');
+    const refreshBtn = document.getElementById('refresh-btn');
+    
+    // 显示加载状态
+    newsListElement.innerHTML = '<div class="loading">加载中...</div>';
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = '刷新中...';
     
     try {
-        // 使用聚合数据的中国新闻 API
-        const response = await fetch('https://v.juhe.cn/toutiao/index?type=top&key=ecf73331e4de4e9b9ee3586ca89171fd');
+        // 使用支持跨域的新闻 API
+        const response = await fetch('https://api.apiopen.top/api/getWangYiNews');
         const data = await response.json();
         
-        if (data.error_code === 0 && data.result && data.result.data && data.result.data.length > 0) {
+        if (data.code === 200 && data.result && data.result.list && data.result.list.length > 0) {
             // 清空加载提示
             newsListElement.innerHTML = '';
             
+            // 随机选择5条新闻
+            const shuffled = [...data.result.list].sort(() => 0.5 - Math.random());
+            const selectedNews = shuffled.slice(0, 5);
+            
             // 显示新闻列表
-            data.result.data.slice(0, 5).forEach(article => {
+            selectedNews.forEach(article => {
                 const newsItem = document.createElement('div');
                 newsItem.className = 'news-item';
                 newsItem.innerHTML = `
                     <a href="${article.url}" target="_blank" class="news-title">${article.title}</a>
-                    <div class="news-source">${article.author_name}</div>
+                    <div class="news-source">${article.source}</div>
                 `;
                 newsListElement.appendChild(newsItem);
             });
@@ -46,6 +56,10 @@ async function getNews() {
     } catch (error) {
         console.error('获取新闻失败:', error);
         newsListElement.innerHTML = '<div class="loading">获取新闻失败，请稍后重试</div>';
+    } finally {
+        // 恢复刷新按钮状态
+        refreshBtn.disabled = false;
+        refreshBtn.textContent = '刷新新闻';
     }
 }
 
@@ -53,5 +67,9 @@ async function getNews() {
 updateTime();
 setInterval(updateTime, 1000);
 getNews();
+
+// 添加刷新按钮点击事件
+document.getElementById('refresh-btn').addEventListener('click', getNews);
+
 // 每5分钟更新一次新闻
 setInterval(getNews, 5 * 60 * 1000); 
