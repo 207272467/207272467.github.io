@@ -1,170 +1,150 @@
-// 更新时间的函数
+// 更新时间和日期
 function updateTime() {
     const now = new Date();
-    
-    // 更新时间
     const timeElement = document.querySelector('.time');
-    const newTime = now.toLocaleTimeString('zh-CN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    });
-    
-    // 只在时间真正改变时更新显示
-    if (timeElement.textContent !== newTime) {
-        timeElement.textContent = newTime;
-    }
-    
-    // 更新日期
     const dateElement = document.querySelector('.date');
-    const newDate = now.toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        weekday: 'long'
-    });
     
-    // 只在日期真正改变时更新显示
-    if (dateElement.textContent !== newDate) {
-        dateElement.textContent = newDate;
-    }
+    // 使用中文格式
+    const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+    
+    timeElement.textContent = now.toLocaleTimeString('zh-CN', timeOptions);
+    dateElement.textContent = now.toLocaleDateString('zh-CN', dateOptions);
 }
 
-// 初始更新
-updateTime();
-
-// 每秒更新一次
-setInterval(updateTime, 1000);
-
-// 记录已显示的诗歌索引
-let displayedPoemIndices = [];
-
-// 随机显示一首诗
+// 显示随机诗歌
 function showRandomPoem() {
-    // 如果所有诗歌都已显示过，重置记录
-    if (displayedPoemIndices.length >= tangPoems.length) {
-        displayedPoemIndices = [];
-    }
+    const poemTitle = document.querySelector('.poem-title');
+    const poemAuthor = document.querySelector('.poem-author');
+    const poemContent = document.querySelector('.poem-content');
     
-    // 获取一个未显示过的随机索引
-    let randomIndex;
-    do {
-        randomIndex = Math.floor(Math.random() * tangPoems.length);
-    } while (displayedPoemIndices.includes(randomIndex));
-    
-    // 记录已显示的索引
-    displayedPoemIndices.push(randomIndex);
-    
+    // 获取随机索引
+    const randomIndex = Math.floor(Math.random() * tangPoems.length);
     const poem = tangPoems[randomIndex];
     
-    // 添加淡入淡出效果
-    const titleElement = document.querySelector('.poem-title');
-    const authorElement = document.querySelector('.poem-author');
-    const contentElement = document.querySelector('.poem-content');
-    
-    titleElement.style.opacity = '0';
-    authorElement.style.opacity = '0';
-    contentElement.style.opacity = '0';
+    // 淡出效果
+    poemTitle.style.opacity = '0';
+    poemAuthor.style.opacity = '0';
+    poemContent.style.opacity = '0';
     
     setTimeout(() => {
-        titleElement.textContent = poem.title;
-        authorElement.textContent = `—— ${poem.author}`;
-        contentElement.textContent = poem.content;
+        // 更新内容
+        poemTitle.textContent = poem.title;
+        poemAuthor.textContent = poem.author;
+        poemContent.textContent = poem.content;
         
-        titleElement.style.opacity = '1';
-        authorElement.style.opacity = '1';
-        contentElement.style.opacity = '1';
-        
-        // 检查自动朗读开关状态
-        const autoReadToggle = document.getElementById('auto-read-toggle');
-        if (autoReadToggle.checked) {
-            readPoem();
-        }
-    }, 300);
+        // 淡入效果
+        poemTitle.style.opacity = '1';
+        poemAuthor.style.opacity = '1';
+        poemContent.style.opacity = '1';
+    }, 500);
 }
-
-// 页面加载时显示随机诗歌
-showRandomPoem();
 
 // 朗读诗歌
 function readPoem() {
-    const title = document.querySelector('.poem-title').textContent;
-    const author = document.querySelector('.poem-author').textContent;
-    const content = document.querySelector('.poem-content').textContent;
+    const poemTitle = document.querySelector('.poem-title');
+    const poemAuthor = document.querySelector('.poem-author');
+    const poemContent = document.querySelector('.poem-content');
     
-    // 创建语音合成实例
-    const speech = new SpeechSynthesisUtterance();
+    const text = `${poemTitle.textContent}，作者${poemAuthor.textContent}。${poemContent.textContent}`;
     
-    // 设置语音参数
-    speech.lang = 'zh-CN';
-    speech.rate = 0.8; // 语速稍慢
-    speech.pitch = 1; // 音调
-    speech.volume = 1; // 音量
-    
-    // 组合要朗读的文本
-    const textToRead = `${title}，${author}。${content}`;
-    speech.text = textToRead;
-    
-    // 开始朗读
-    window.speechSynthesis.speak(speech);
-    
-    // 更新按钮状态
-    const readBtn = document.querySelector('.read-btn');
-    readBtn.disabled = true;
-    readBtn.style.opacity = '0.5';
-    
-    // 朗读结束后恢复按钮状态
-    speech.onend = () => {
-        readBtn.disabled = false;
-        readBtn.style.opacity = '1';
-    };
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+    }
 }
 
-// 添加鼠标悬停效果
-document.addEventListener('DOMContentLoaded', () => {
-    const containers = document.querySelectorAll('.time-container, .poem-container');
+// 搜索诗歌
+function searchPoems() {
+    const searchInput = document.getElementById('search-input');
+    const searchTerm = searchInput.value.toLowerCase();
+    const resultsContainer = document.getElementById('search-results');
     
-    containers.forEach(container => {
-        container.addEventListener('mousemove', (e) => {
-            const rect = container.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            container.style.setProperty('--mouse-x', `${x}px`);
-            container.style.setProperty('--mouse-y', `${y}px`);
-        });
-    });
+    if (searchTerm.length < 1) {
+        resultsContainer.innerHTML = '';
+        return;
+    }
     
-    // 初始化自动朗读开关状态
-    const autoReadToggle = document.getElementById('auto-read-toggle');
-    autoReadToggle.checked = true;
-});
+    const results = tangPoems.filter(poem => 
+        poem.title.toLowerCase().includes(searchTerm) ||
+        poem.author.toLowerCase().includes(searchTerm) ||
+        poem.content.toLowerCase().includes(searchTerm)
+    );
+    
+    displaySearchResults(results);
+}
 
-// 自定义鼠标效果
+// 显示搜索结果
+function displaySearchResults(results) {
+    const resultsContainer = document.getElementById('search-results');
+    resultsContainer.innerHTML = '';
+    
+    if (results.length === 0) {
+        resultsContainer.innerHTML = '<div class="no-results">未找到相关诗歌</div>';
+        return;
+    }
+    
+    results.forEach(poem => {
+        const poemElement = document.createElement('div');
+        poemElement.className = 'search-result-item';
+        poemElement.innerHTML = `
+            <h3>${poem.title}</h3>
+            <p class="author">${poem.author}</p>
+            <p class="content">${poem.content}</p>
+        `;
+        poemElement.onclick = () => displaySelectedPoem(poem);
+        resultsContainer.appendChild(poemElement);
+    });
+}
+
+// 显示选中的诗歌
+function displaySelectedPoem(poem) {
+    const poemTitle = document.querySelector('.poem-title');
+    const poemAuthor = document.querySelector('.poem-author');
+    const poemContent = document.querySelector('.poem-content');
+    
+    poemTitle.style.opacity = '0';
+    poemAuthor.style.opacity = '0';
+    poemContent.style.opacity = '0';
+    
+    setTimeout(() => {
+        poemTitle.textContent = poem.title;
+        poemAuthor.textContent = poem.author;
+        poemContent.textContent = poem.content;
+        
+        poemTitle.style.opacity = '1';
+        poemAuthor.style.opacity = '1';
+        poemContent.style.opacity = '1';
+    }, 500);
+    
+    // 隐藏搜索结果
+    document.getElementById('search-results').innerHTML = '';
+    document.getElementById('search-input').value = '';
+}
+
+// 初始化
 document.addEventListener('DOMContentLoaded', () => {
-    // 创建鼠标元素
+    // 创建自定义鼠标元素
     const cursor = document.createElement('div');
-    cursor.classList.add('cursor');
+    cursor.className = 'cursor';
     document.body.appendChild(cursor);
     
     const cursorDot = document.createElement('div');
-    cursorDot.classList.add('cursor-dot');
+    cursorDot.className = 'cursor-dot';
     document.body.appendChild(cursorDot);
     
     // 更新鼠标位置
     document.addEventListener('mousemove', (e) => {
-        cursor.style.left = `${e.clientX}px`;
-        cursor.style.top = `${e.clientY}px`;
-        
-        cursorDot.style.left = `${e.clientX}px`;
-        cursorDot.style.top = `${e.clientY}px`;
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+        cursorDot.style.left = e.clientX + 'px';
+        cursorDot.style.top = e.clientY + 'px';
     });
     
     // 鼠标悬停效果
-    const hoverElements = document.querySelectorAll('button, a, .time-container, .poem-container');
-    
-    hoverElements.forEach(element => {
+    document.querySelectorAll('a, button, .poem-container').forEach(element => {
         element.addEventListener('mouseenter', () => {
             cursor.classList.add('hover');
             cursorDot.classList.add('hover');
@@ -176,14 +156,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // 鼠标点击效果
+    // 点击效果
     document.addEventListener('mousedown', () => {
-        cursor.classList.add('clicking');
-        cursorDot.classList.add('clicking');
+        cursor.classList.add('click');
+        cursorDot.classList.add('click');
     });
     
     document.addEventListener('mouseup', () => {
-        cursor.classList.remove('clicking');
-        cursorDot.classList.remove('clicking');
+        cursor.classList.remove('click');
+        cursorDot.classList.remove('click');
     });
+    
+    // 初始化时间和诗歌
+    updateTime();
+    showRandomPoem();
+    
+    // 设置定时器
+    setInterval(updateTime, 1000);
+    
+    // 添加事件监听器
+    document.getElementById('read-btn').addEventListener('click', readPoem);
+    document.getElementById('refresh-btn').addEventListener('click', showRandomPoem);
+    document.getElementById('search-input').addEventListener('input', searchPoems);
 }); 
