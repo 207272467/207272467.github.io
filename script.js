@@ -22,16 +22,16 @@ async function getNews() {
     const newsListElement = document.getElementById('news-list');
     
     try {
-        // 使用 NewsAPI 获取新闻
-        const response = await fetch('https://newsapi.org/v2/top-headlines?country=cn&apiKey=ecf73331e4de4e9b9ee3586ca89171fd');
+        // 使用 Gnews API 获取新闻（支持跨域）
+        const response = await fetch('https://gnews.io/api/v4/top-headlines?country=cn&lang=zh&max=5&apikey=ecf73331e4de4e9b9ee3586ca89171fd');
         const data = await response.json();
         
-        if (data.status === 'ok' && data.articles.length > 0) {
+        if (data.articles && data.articles.length > 0) {
             // 清空加载提示
             newsListElement.innerHTML = '';
             
             // 显示新闻列表
-            data.articles.slice(0, 5).forEach(article => {
+            data.articles.forEach(article => {
                 const newsItem = document.createElement('div');
                 newsItem.className = 'news-item';
                 newsItem.innerHTML = `
